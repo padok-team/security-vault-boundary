@@ -113,23 +113,16 @@ path "postgres/creds/ops" {
 EOT
 }
 
-resource "vault_policy" "database_dev" {
-  name = "database_dev"
+resource "vault_policy" "these" {
+  for_each = toset(local.roles)
+
+  name = "database_${each.key}"
 
   policy = <<EOT
-path "postgres/creds/dev" {
+path "postgres/creds/${each.key}" {
   capabilities = ["read"]
 }
 EOT
 }
 
-resource "vault_policy" "database_ops" {
-  name = "database_ops"
-
-  policy = <<EOT
-path "postgres/creds/ops" {
-  capabilities = ["read"]
-}
-EOT
-}
 

@@ -1,5 +1,5 @@
 locals {
-  roles = ["dev", "ops"]
+  roles = ["dev", "dba"]
 }
 
 resource "vault_mount" "db" {

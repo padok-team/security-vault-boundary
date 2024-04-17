@@ -41,17 +41,17 @@ resource "boundary_role" "global_project_admin" {
   ]
 }
 
-resource "boundary_role" "project_ops" {
+resource "boundary_role" "project_dba" {
   scope_id    = boundary_scope.org.id
   grant_scope_id = boundary_scope.project.id
-  name        = "project_ops"
-  description = "Project Ops"
+  name        = "project_dba"
+  description = "Project dba"
   grant_strings = [
-    "ids=${boundary_target.ops.id};actions=authorize-session",
+    "ids=${boundary_target.dba.id};actions=authorize-session",
     "ids=*;type=target;actions=list"  
   ]
   principal_ids = [
-    boundary_group.ops.id
+    boundary_group.dba.id
   ]
 }
 

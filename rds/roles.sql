@@ -11,8 +11,8 @@ begin;
   grant select, usage, update on all sequences in schema public to dev;
   grant execute on all functions in schema public to dev;
 
-  create role ops noinherit;
-  grant all privileges on database postgres to ops;
+  create role dba noinherit;
+  grant all privileges on database postgres to dba;
 
 begin;
 

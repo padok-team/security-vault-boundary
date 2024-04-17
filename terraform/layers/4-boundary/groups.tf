@@ -9,9 +9,9 @@ resource "boundary_group" "admin" {
   scope_id    = boundary_scope.org.id
 }
 
-resource "boundary_group" "ops" {
-  name        = "Ops"
-  description = "Group for padoxx ops"
+resource "boundary_group" "dba" {
+  name        = "dba"
+  description = "Group for padoxx dba"
   member_ids  = [boundary_user.thibaultl.id]
   scope_id    = boundary_scope.org.id
 }

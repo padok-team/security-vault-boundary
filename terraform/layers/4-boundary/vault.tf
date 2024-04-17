@@ -10,11 +10,11 @@ resource "boundary_credential_store_vault" "vault" {
 
 # Credential libraries
 
-resource "boundary_credential_library_vault" "ops" {
-  name                = "ops"
-  description         = "Ops credential library"
+resource "boundary_credential_library_vault" "dba" {
+  name                = "dba"
+  description         = "dba credential library"
   credential_store_id = boundary_credential_store_vault.vault.id
-  path                = "postgres/creds/ops"
+  path                = "postgres/creds/dba"
 }
 
 resource "boundary_credential_library_vault" "dev" {

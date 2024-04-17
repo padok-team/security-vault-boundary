@@ -18,7 +18,7 @@ resource "vault_generic_endpoint" "thibaultl" {
 
   data_json = <<EOT
 {
-  "policies": ["database_ops"],
+  "policies": ["database_dba"],
   "password": "xxxxxx"
 }
 EOT

@@ -25,15 +25,15 @@ resource "boundary_host_set" "database" {
 
 # Targets
 
-resource "boundary_target" "ops" {
+resource "boundary_target" "dba" {
   scope_id     = boundary_scope.project.id
-  name         = "database_ops"
+  name         = "database_dba"
   type         = "tcp"
   default_port = "5432"
   session_connection_limit = 1
   host_source_ids = [boundary_host_set.database.id]
   brokered_credential_source_ids = [
-    boundary_credential_library_vault.ops.id
+    boundary_credential_library_vault.dba.id
   ]
 }
 

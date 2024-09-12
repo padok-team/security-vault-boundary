@@ -30,7 +30,7 @@ You should have all these tools installed:
 
 - Login to AWS: `aws sso login`
 
-- Replace domain name with your domain name: search each occurence of "padok.school" and replace them with your domain name
+- Replace domain name with your domain name: search each occurence of "dojo.padok.school" and replace them with your domain name
 
 ## 1. Bootstrap
 
@@ -48,15 +48,17 @@ You should have all these tools installed:
   aws eks update-kubeconfig --name boundary-eks
   ```
 
+  /!\ Note Thibault : aws_eks_addon.ebs_csi_driver en échec, je l'ai supprimé du code et installé à la main dans la console
+
 ## 3. Boundary installation
 
 - Create POSTGRESQL database for Boundary
 
   ```bash
-  helm repo add bitnami https://charts.bitnami.com/bitnami
-  helm repo update
-  helm install postgresql bitnami/postgresql -n boundary --create-namespace
-  kubectl get secret --namespace boundary postgresql -o jsonpath="{.data.postgres-password}" | base64 -d
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install postgresql bitnami/postgresql -n boundary --create-namespace
+kubectl get secret --namespace boundary postgresql -o jsonpath="{.data.postgres-password}" | base64 -d
   ```
 
   - **/!\ WARNING:** If you have a single node cluster, you need to check in which zone your node is:
@@ -92,7 +94,7 @@ You should have all these tools installed:
     - write eip ids of both boundary-worker eip
   - controller:
     ip: "xx.xx.xx.xx"
-    - change ip with the same controller elastic ip you used in values.yaml of boundary controller
+    - change ip with the same controller elastic ip you used in values.yaml of boundary controller (tf console aws_eip.controller-2)
   - kms:
     worker: "xxxxxxxx"
     - write worker kms key id
@@ -102,6 +104,8 @@ You should have all these tools installed:
 
     **/!\ WARNING:** If you have a single node cluster, you need to use the first elastic ip you wrote in the worker load balancer config if your node is in the first zone, else the second elastic ip
 
+  - Get a cert manager arn in the AWS console and add it service.beta.kubernetes.io/aws-load-balancer-ssl-cert:
+
 - Install boundary
 
 ```bash
@@ -109,13 +113,15 @@ helm install boundary-controller -n boundary . #in helm/boundary-controller
 helm install boundary-worker -n boundary . #in helm/boundary-worker
 ```
 
-- Wait for network load balancers to be active, then restart boundary-controller and boundary-worker deployments
+- Wait for network load balancers to be active, then rollout restart deployments boundary-controller and boundary-worker deployments
 
 ## 4. Populate RDS
 
+We need to populate the RDS database with information. As it is private, the easiest thing is to : 
 - Open a shell in a `boundary` pod
 - Install postgresql : `apk add postgresql`
-- Copy both files of rds folder in pod : northwind-database.sql et northwind-roles.sql
+- Copy both files of rds folder in pod : database.sql et roles.sql
+- Get secret of RDS in secret manager
 - Populate RDS with these commands ($PG_URL is connexion url to RDS: postgresql://{user}:{password}@{rds_endpoint}:5432/postgres)
 
 ```bash
@@ -136,12 +142,6 @@ kubectl create namespace ingress-nginx
 helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx
 ```
 
-Create the ingress for Vault :
-
-```bash
-kubectl apply -f ingress_vault.yaml
-```
-
 ### Cert-manager
 
 Create a cert-manager in your cluster
@@ -158,6 +158,8 @@ helm install \
 kubectl create --edit -f kube/cluster-issuer.yaml
 ```
 
+Note Thibault : Ce fichier n'a pas été commit. A priori un clusterIsser classique
+
 ### DNS layer
 
 - In AWS console, get the name of the Load Balancer created by the ingress-nginx and copy it in data.aws_elb.lb-vault.name (file : `2-dns/main.tf`)
@@ -171,6 +173,12 @@ kubectl create --edit -f kube/cluster-issuer.yaml
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm install vault hashicorp/vault -n vault --create-namespace --version 1.16.0
+```
+
+### Create the ingress for Vault
+
+```bash
+kubectl apply -f ingress_vault.yaml
 ```
 
 - Initialize vault
@@ -203,20 +211,20 @@ export AWS_SESSION_TOKEN="..."
 
 To log into Boundary (password: \$uper\$ecure):
 
-`boundary authenticate password -addr http://boundary-api.padok.school -auth-method-id <AUTH_METHOD_ID> -login-name jeff`
+`boundary authenticate password -addr http://boundary-api.dojo.padok.school -auth-method-id <AUTH_METHOD_ID> -login-name jeff`
 
 To list organization:
 
-`boundary scopes list -addr http://boundary-api.padok.school`
+`boundary scopes list -addr http://boundary-api.dojo.padok.school`
 
 To list projects in organization:
 
-`boundary scopes list -addr http://boundary-api.padok.school -scope-id <ORG_ID>`
+`boundary scopes list -addr http://boundary-api.dojo.padok.school -scope-id <ORG_ID>`
 
 To list targets in project:
 
-`boundary targets list -addr http://boundary-api.padok.school -scope-id <PROJECT_ID>`
+`boundary targets list -addr http://boundary-api.dojo.padok.school -scope-id <PROJECT_ID>`
 
 To connect to PostgreSQL target:
 
-`boundary connect postgres -target-id <TARGET_ID> -addr http://boundary-api.padok.school -dbname postgres`
+`boundary connect postgres -target-id <TARGET_ID> -addr http://boundary-api.dojo.padok.school -dbname postgres`

@@ -110,6 +110,10 @@ path "postgres/creds/dev" {
 path "postgres/creds/ops" {
   capabilities = ["read"]
 }
+
+path "postgres/creds/dba" {
+  capabilities = ["read"]
+}
 EOT
 }
 

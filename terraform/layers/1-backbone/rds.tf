@@ -10,8 +10,8 @@ module "rds" {
 
   ## DATABASE
   engine              = "postgres"
-  engine_version      = "13.8"
-  db_parameter_family = "postgres13"
+  engine_version      = "15.4"
+  db_parameter_family = "postgres15"
   name                = "aws_rds_instance_postgresql_db_poc_vcb"
   username            = "aws_rds_instance_postgresql_user_poc_vcb"
 
